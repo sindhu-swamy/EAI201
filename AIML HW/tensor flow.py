@@ -1,25 +1,27 @@
-import tensorflow as tf
 import numpy as np
+import tensorflow as tf
+import matplotlib.pyplot as plt
 
-m = 8.0
-c = 12.0
-X = np.linspace(0, 15, 200)
-y = m * X + c + np.random.normal(0, 3, size=X.shape)
+
+X_train = np.linspace(0, 10, 50)
+y_train = 3 * X_train + 2 + np.random.randn(*X_train.shape) * 2 
 
 model = tf.keras.Sequential([
     tf.keras.layers.Dense(1, input_shape=(1,))
 ])
 
-
-model.compile(optimizer='adam', loss='mse')
-
-history = model.fit(X, y, epochs=100, verbose=0)
+model.compile(optimizer='sgd', loss='mse')
+model.fit(X_train, y_train, epochs=200, verbose=0)
 
 
-w, b = model.layers[0].get_weights()
-print(f"True slope: {m:.2f}, True intercept: {c:.2f}")
-print(f"Learned slope: {w[0][0]:.2f}, Learned intercept: {b[0]:.2f}")
+weights = model.layers[0].get_weights()
+m_learned = weights[0][0][0]  # slope
+c_learned = weights[1][0]     # intercept
 
-x_test = np.array([[20.0]])
-y_pred = model.predict(x_test)
-print(f"Prediction for x={x_test[0][0]} → y={y_pred[0][0]:.2f}")
+print(f"Learned equation: y = {m_learned:.2f}x + {c_learned:.2f}")
+
+plt.scatter(X_train, y_train, label="Training Data")
+plt.plot(X_train, model.predict(X_train), color="red", label="Learned Line")
+plt.legend()
+plt.show()
+
